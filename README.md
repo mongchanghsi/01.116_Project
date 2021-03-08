@@ -1,4 +1,6 @@
-## How to use
+## OCR for inventory management
+
+#### How to use
 
 1. open cmd/terminal
 2. cd to directory
