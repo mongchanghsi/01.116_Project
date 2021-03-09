@@ -5,7 +5,7 @@ import pytesseract
 import argparse
 import cv2
 
-from isDate import isDate
+from utils.isDate import isDate
 
 ap = argparse.ArgumentParser()
 ap.add_argument("-i", "--image", required=True, help="path to image that will be processed by OCR / tesseract")
