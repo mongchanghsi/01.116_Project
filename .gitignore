@@ -2,3 +2,4 @@
 processed_images/
 raw_images/
 test_images/
+__pycache__/

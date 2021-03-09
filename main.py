@@ -5,6 +5,8 @@ import pytesseract
 import argparse
 import cv2
 
+from isDate import isDate
+
 ap = argparse.ArgumentParser()
 ap.add_argument("-i", "--image", required=True, help="path to image that will be processed by OCR / tesseract")
 ap.add_argument("-p", "--preprocess", type=str, default="thresh", help="preprocessing method that is applied to the image")
@@ -27,8 +29,18 @@ cv2.imwrite(filename, gray)
 
 # load the image as a PIL/Pillow image, apply OCR 
 text = pytesseract.image_to_string(Image.open(filename))
-print(text)
-print(text.split())
+# print(text)
+
+metadata = {'brand': '', 'model': '', 'expirydate': '', 'serialnumber': '', 'diopter': ''}
+
+information = text.split()
+print(information)
+
+for info in information:
+  if isDate(info):
+    metadata['expirydate'] = info
+
+print(metadata)
 
 # show the output image
 # cv2.imshow("Image", image)
