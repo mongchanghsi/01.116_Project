@@ -4,7 +4,8 @@
 
 1. open cmd/terminal
 2. cd to directory
-3. run `python3 main.py -i test_images/<IMAGE NAME INCLUDING EXT>` for e.g. `python3 main.py -i test_images/test4_top_cropped.png`
+3. run `python3 main.py -i test_images/<IMAGE NAME INCLUDING EXT>` for only 1 image (for e.g. `python3 main.py -i test_images/test4_top_cropped.png`)
+4. run `python3 main.py -i1 test_images/<IMAGE NAME INCLUDING EXT> -i2 test_images/<IMAGE NAME INCLUDING EXT>` for 2 images (for e.g. `python3 main2.py -i1 test_images/test2_back_cropped.png -i2 test_images/test2_top_cropped.png`)
 
 #### Note
 
