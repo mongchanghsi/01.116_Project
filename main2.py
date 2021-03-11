@@ -5,12 +5,22 @@ import pytesseract
 import argparse
 import cv2
 
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
+from pprint import pprint
+
 from utils.isDate import isDate
 from utils.isDiopter import isDiopter
 from utils.isBrand import isBrand
 from utils.isModel import isModel
 from utils.isSerial import isSerial, isSerial_2
 
+# Google Sheet Set up
+client = gspread.service_account(filename='credentials.json')
+sheet = client.open('Mock_EMR').sheet1
+sheet_data = sheet.get_all_records()
+
+# Set Arguments Parser
 ap = argparse.ArgumentParser()
 ap.add_argument("-i1", "--image1", required=True, help="path to 1st image that will be processed by OCR / tesseract")
 ap.add_argument("-i2", "--image2", required=True, help="path to 1st image that will be processed by OCR / tesseract")
@@ -46,7 +56,7 @@ text2 = pytesseract.image_to_string(Image.open(filename2))
 information1 = text1.split()
 information2 = text2.split()
 info = information1 + information2
-print(info)
+# print(info)
 
 metadata = {'brand': '', 'model': '', 'expirydate': '', 'serialnumber': '', 'diopter': ''}
 
@@ -75,8 +85,16 @@ if metadata['serialnumber'] == '':
       metadata['serialnumber'] = combined_serial
 
 print(metadata)
-# show the output image
-# cv2.imshow("Image", image)
-# cv2.imshow("Output", gray)
-# cv2.waitKey(0)
 
+shouldUpdate = True
+for i in metadata.values():
+  if i == '':
+    shouldUpdate = False
+  
+if shouldUpdate:
+  entry_number = len(sheet_data) + 2
+  row = list(metadata.values())
+  sheet.insert_row(row, entry_number)
+  print('Updated Google Sheets')
+else:
+  print('Missing Information, did not update Google Sheets')
