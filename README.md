@@ -1,5 +1,11 @@
 ## OCR for inventory management
 
+#### Google Sheet Set Up
+
+1. Follow instructions from https://www.youtube.com/watch?v=cnPlKLEGR7E to generate your credentials.json
+2. Drop the credentials.json into the directory folder
+3. Alternatively, DM me for my credentials.json
+
 #### How to use
 
 1. open cmd/terminal
