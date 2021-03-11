@@ -8,8 +8,8 @@ import cv2
 from utils.isDate import isDate
 
 ap = argparse.ArgumentParser()
-ap.add_argument("-i", "--image", required=True, help="path to image that will be processed by OCR / tesseract")
-ap.add_argument("-p", "--preprocess", type=str, default="thresh", help="preprocessing method that is applied to the image")
+ap.add_argument("-i", "--image", required=True, help="path to 1st image that will be processed by OCR / tesseract")
+ap.add_argument("-p", "--preprocess", type=str, default="blur", help="preprocessing method that is applied to the image")
 args = vars(ap.parse_args())
 
 # The image is loaded into memory – Python kernel
