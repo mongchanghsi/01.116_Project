@@ -11,7 +11,7 @@ from pprint import pprint
 
 from utils.isDate import isDate
 from utils.isDiopter import isDiopter
-from utils.isBrand import isBrand
+from utils.isBrand import isBrand, isSimilarBrand
 from utils.isModel import isModel
 from utils.isSerial import isSerial, isSerial_2
 
@@ -56,7 +56,7 @@ text2 = pytesseract.image_to_string(Image.open(filename2))
 information1 = text1.split()
 information2 = text2.split()
 info = information1 + information2
-# print(info)
+print(info)
 
 metadata = {'brand': '', 'model': '', 'expirydate': '', 'serialnumber': '', 'diopter': ''}
 
@@ -67,7 +67,7 @@ for i in info:
   if isDiopter(i):
     metadata['diopter'] = i
   if isBrand(i):
-    metadata['brand'] = i
+    metadata['brand'] = i.upper()
 
 # Round 2 is using the identified brand to narrow down on the model to find
 if metadata['brand'] != '':
@@ -93,8 +93,8 @@ for i in metadata.values():
   
 if shouldUpdate:
   entry_number = len(sheet_data) + 2
-  row = list(metadata.values())
-  sheet.insert_row(row, entry_number)
+  # row = list(metadata.values())
+  # sheet.insert_row(row, entry_number)
   print('Updated Google Sheets')
 else:
   print('Missing Information, did not update Google Sheets')
