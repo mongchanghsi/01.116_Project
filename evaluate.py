@@ -36,10 +36,13 @@ def evaluate_acc(image_path, prediction, ground_truth): #TODO: Implement "augmen
             accurate_count += 1
     
     if accurate_count == len(ground_truth):
-        print("===============================================================================")
+        print("*******************************************************************************")
         print("OCR SUCCESS: " + image_path)
         print("-------------------------------------------------------------------------------")
-        print("===============================================================================")        
+        print("Ground Truth: {}".format(ground_truth))
+        print("Prediction: {}".format(prediction.split())) 
+        print("*******************************************************************************")     
+        print("")   
         return True
     else:
 
@@ -54,6 +57,7 @@ def evaluate_acc(image_path, prediction, ground_truth): #TODO: Implement "augmen
 
 def main():
     failed_test_images = []
+    success_test_images = []
     for brand_dirname in os.listdir(DATASET_PATH):
         brand_dirpath = os.path.join(DATASET_PATH, brand_dirname)
         if os.path.isdir(brand_dirpath) and brand_dirname != "Others":
@@ -68,9 +72,15 @@ def main():
                             image = preprocess(image)
                             prediction = pytesseract.image_to_string(Image.fromarray(image))
                             ground_truth = csv_utils.extract_ground_truth(brand_dirname, model_dirname, view)
-                            if not evaluate_acc(image_path, prediction, ground_truth):
+                            if evaluate_acc(image_path, prediction, ground_truth):
+                                success_test_images.append(image_path)
+                            else:
                                 failed_test_images.append(image_path)
                                 
-    return failed_test_images
+    return success_test_images, failed_test_images
 
-main()
+success_test_images, failed_test_images = main()
+
+print(success_test_images)
+print(failed_test_images)
+
