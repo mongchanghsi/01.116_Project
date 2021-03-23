@@ -1,3 +1,4 @@
+import csv_utils
 acrysof_models = ['TFNT00', 'TFNT20-T60', 'SN6AT2-T9', 'AU00T0', 'SA60WF', 'SA6AT2-T9', 'MA60MA']
 
 tecnis_3_pc_models = ['ZA9003']
@@ -12,6 +13,8 @@ tecnis_synergy_models = ['ZFR00V']
 
 sensar_1_models = ['AAB00']
 sensar_models = ['AR40M', 'AR40E', 'AR40e']
+
+BRANDS = csv_utils.get_brands()
 
 def isModel(x, b):
   if b == 'TECNIS':
