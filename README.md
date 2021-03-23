@@ -6,6 +6,26 @@
 2. Drop the credentials.json into the directory folder
 3. Alternatively, DM me for my credentials.json
 
+### Installation requirements
+1. Ensure binaries for tesseract are installed:
+
+    For Linux:
+    ```
+    sudo apt update
+    sudo apt install tesseract-ocr
+    sudo apt install libtesseract-dev
+    ```
+
+    For Windows: \
+    Refer to https://tesseract-ocr.github.io/tessdoc/Downloads 
+
+2. Install python libraries 
+    ```
+    pip install -r requirements.txt
+    ```
+
+3. Ensure opencv is installed
+
 #### How to use
 
 1. open cmd/terminal
