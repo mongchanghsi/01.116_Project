@@ -16,6 +16,10 @@ def isSerial(x, b):
   if b == 'ACRYSOF':
     if len(x) == 10 or len(x) > 11:
       return False
+  
+  if b == '':
+    return False
+  print(x)
   return True
 
 def isSerial_2(x1, x2, b):
@@ -24,10 +28,10 @@ def isSerial_2(x1, x2, b):
   combined_serial = x1 + x2
 
   if b == 'SENSAR' or b =='TECNIS':
-    if len(combined_serial) > 10:
+    if len(combined_serial) != 10:
       return False
 
   if b == 'ACRYSOF':
-    if len(combined_serial) == 10 or len(combined_serial) > 11:
+    if len(combined_serial) != 11:
       return False
   return True
