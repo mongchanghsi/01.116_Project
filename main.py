@@ -12,6 +12,8 @@ ap.add_argument("-i", "--image", required=True, help="path to 1st image that wil
 ap.add_argument("-p", "--preprocess", type=str, default="blur", help="preprocessing method that is applied to the image")
 args = vars(ap.parse_args())
 
+processed_dirname = "processed_images"
+
 # The image is loaded into memory – Python kernel
 image = cv2.imread(args["image"])
 # Convert to grayscale
@@ -24,7 +26,10 @@ if args["preprocess"] == "thresh": gray = cv2.threshold(gray, 0, 255, cv2.THRESH
 elif args["preprocess"] == "blur": gray = cv2.medianBlur(gray, 3)
 
 # write the new grayscale image to disk 
-filename = "./processed_images/{}.png".format(os.getpid())
+if not os.path.isdir(processed_dirname) or not os.path.exists(processed_dirname):
+  os.mkdir(processed_dirname)
+
+filename = "./{}/{}.png".format(processed_dirname, os.getpid())
 cv2.imwrite(filename, gray)
 
 # load the image as a PIL/Pillow image, apply OCR 

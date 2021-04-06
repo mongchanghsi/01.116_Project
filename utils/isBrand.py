@@ -1,5 +1,11 @@
+# TODO: Include uppercase and lowercase variants too
 brand_GT = ['TECNIS', 'Sensar', 'AcrySof']
 brands = ['TECNIS', 'SENSAR', 'ACRYSOF']
+import csv_utils
+
+# brands = ['TECNIS', 'SENSAR', 'ACRYSOF']
+BRANDS = csv_utils.get_brands()
+
 # need to implement similarity score
 def isBrand(x):
   x = x.upper()
