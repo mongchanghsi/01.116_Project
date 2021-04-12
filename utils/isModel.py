@@ -59,13 +59,22 @@ def modelSimilarity(x,b):
         else:
           if similarityScore[word] < score:
             similarityScore[word] = score
+  elif b == 'ACRYSOF':
+    for b2 in acrysof_models:
+      word, score = similarityFunction(x, b2)
+      if word not in similarityScore.keys():
+        similarityScore[word] = score
+      else:
+        if similarityScore[word] < score:
+          similarityScore[word] = score
+
   # print(f'The word is {x}, the Similarity Score is {similarityScore}')
   if similarityScore != {}:
     most_similar_model= (max(similarityScore, key=similarityScore.get))
     highest_score = max(similarityScore.values())
     return most_similar_model, highest_score
 
-  # if there is no similarity at all, return blank modeland 0 score
+  # if there is no similarity at all, return blank model and 0 score
   return '', 0
 
 def similarityFunction(word1, word2):
