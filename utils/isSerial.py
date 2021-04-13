@@ -4,6 +4,8 @@ ACRYSOF = 11
 
 def isSerial(x, b):
   # assuming that your serial number is in one piece
+  if x[0] == '0':
+    return False
   if len(x) < 10:
     return False
   if x.isdecimal() == False:
@@ -23,6 +25,8 @@ def isSerial(x, b):
 
 def isSerial_2(x1, x2, b):
   if x1.isdecimal() == False or x2.isdecimal() == False:
+    return False
+  if x1[0] == '0':
     return False
   combined_serial = x1 + x2
 

@@ -44,7 +44,7 @@ gray2 = cv2.cvtColor(image2, cv2.COLOR_BGR2GRAY)
 # Preprocessing function - produces 2 versions of using Gaussian Blur only and Gaussian Blur and Binary Threshold
 def preprocess(input1, input2):
   print('Undergoing Gaussian Blur Preprocessing')
-  output_GB_1, output_GB_2 = medianBlur(input1), medianBlur(input2)
+  output_GB_1, output_GB_2 = gaussianBlur(input1), gaussianBlur(input2)
 
   print('Undergoing Gaussian Blurring with Threshold Preprocessing')
   output_GBT_1, output_GBT_2 = gaussianBlur_threshold(input1), gaussianBlur_threshold(input2)
