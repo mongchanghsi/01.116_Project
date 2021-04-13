@@ -19,9 +19,7 @@ def brandSimilarity(x):
     highest_score = max(similarityScore.values())
     if highest_score > 36.0:
       return most_similar_brand, highest_score
-    else:
-      return '', 0
-    # print(f'{x} and {most_similar_brand}')
+  return '', 0
     
 def similarityFunction(word1, word2):
   # word1 is the OCR

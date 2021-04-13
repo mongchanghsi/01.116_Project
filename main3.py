@@ -15,7 +15,7 @@ from pprint import pprint
 from utils.isDate import isDate
 from utils.isDiopter import isDiopter, processDiopter
 from utils.isBrand import isBrand, brandSimilarity
-from utils.isModel import isModel, modelSimilarity
+from utils.isModel import isModel, modelSimilarity, modelFindBrand
 from utils.isSerial import isSerial, isSerial_2, checkSerialSize
 from utils.isBatch import isBatch, batchSimilarity
 
@@ -131,6 +131,15 @@ def dataExtraction(metadata, info):
   # If the brand is ALCON, convert it to ACRYSOF
   if metadata['brand'] == 'ALCON': metadata['brand'] = 'ACRYSOF'
 
+  # If brand is still not detected after similarity score, search for model -> brand
+  # May need to do similarity score
+  if metadata['brand'] == '':
+    for i in info:
+      _brand, _model = modelFindBrand(i)
+      if _brand != '' and _model != '':
+        metadata['brand'] = _brand
+        metadata['model'] = _model
+
   # Using identified brand, detect the model and the serial number
   if metadata['brand'] != '':
     for i in info:
@@ -163,9 +172,9 @@ def dataExtraction(metadata, info):
     if metadata['batch'] == '':
       similarity_batch_score = {}
       for i in info:
-        if len(i) >= 9:
+        if len(i) >= 9 and len(i) < 18:
           most_similar_batch, score = batchSimilarity(i, metadata['model'])
-          if score > 0:
+          if score > 36:
             if most_similar_batch in similarity_batch_score.keys():
               if similarity_batch_score[most_similar_batch] < score:
                 similarity_batch_score[most_similar_batch] = score
@@ -175,10 +184,11 @@ def dataExtraction(metadata, info):
       if (similarity_batch_score != {}):
         batch_name = (max(similarity_batch_score, key=similarity_batch_score.get))
         autocorrect_batch_name = metadata['model'] + batch_name[len(metadata['model']):]
-        if (checkSerialSize(autocorrect_batch_name, metadata['brand']) == False):
-          metadata['batch'] = autocorrect_batch_name + '0'
-        else:
-          metadata['batch'] = autocorrect_batch_name
+        metadata['batch'] = autocorrect_batch_name
+        # if (checkSerialSize(autocorrect_batch_name, metadata['brand']) == False):
+        #   metadata['batch'] = autocorrect_batch_name + '0'
+        # else:
+        #   metadata['batch'] = autocorrect_batch_name
 
   # If serial number is still not detected, perform a secondary check if the serial number has been broken up into two
   if metadata['serialnumber'] == '':
