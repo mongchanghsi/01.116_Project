@@ -16,15 +16,13 @@ from utils.isModel import isModel, modelSimilarity
 from utils.isSerial import isSerial, isSerial_2
 from utils.isBatch import isBatch, batchSimilarity
 
-# TODO: batchSimilarity
-
 from utils.preprocessing.blur import medianBlur, averageBlur, gaussianBlur, bilateralBlur
 from utils.preprocessing.threshold import threshold
 
 # Set Arguments Parser
 ap = argparse.ArgumentParser()
 ap.add_argument("-d", "--dataset-dir", required=True, help="dir of dataset images")
-ap.add_argument("-p", "--preprocess", type=str, choices=["thresh", "blur", "all"], help="preprocessing method that is applied to the image")
+ap.add_argument("-p", "--preprocess", type=str, choices=["thresh", "blur", "all", "none"], help="preprocessing method that is applied to the image")
 ap.add_argument("-v", "--verbose", choices=[1,0], type=int, default=0)
 
 args = vars(ap.parse_args())
@@ -33,6 +31,13 @@ DATASET_PATH = "/mnt/c/Users/user/OneDrive - Singapore University of Technology 
 SIG_FIG = 3
 
 EVAL_LOG_FILEPATH = "logs/{}_{}.json".format(args["dataset_dir"], args["preprocess"])
+EVAL_CSV_FILEPATH = "logs/{}_{}.csv".format(args["dataset_dir"], args["preprocess"])
+
+csv_field_names = ["Image Path", "Stage", "Number of Words", "Number of Accurate Words", "Word Accuracy",
+                    "Number of Characters", "Number of Accurate Characters", "Character Accuracy"]
+
+if not os.path.exists(EVAL_CSV_FILEPATH):
+    csv_utils.initialize(EVAL_CSV_FILEPATH, csv_field_names)
 
 if not os.path.exists(EVAL_LOG_FILEPATH):
     f = open(EVAL_LOG_FILEPATH, "w")
@@ -52,6 +57,7 @@ def preprocess(image, preprocess_type):
     # preprocess the image
     if preprocess_type == "thresh": 
         image = cv2.GaussianBlur(image, (3,3),0)
+        # image = cv2.medianBlur(image, 3)
         image = cv2.threshold(image, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
     # blur the image to remove noise
     elif preprocess_type == "blur": 
@@ -75,6 +81,8 @@ def calc_accuracy(image_path, view, prediction, ground_truth):
     for param in gt_predicted:
         gt_predicted[param] = {"GT": gt_predicted[param], "Predicted": None, "Character Similarity": None}
     stage_info["GT - Predicted"] = gt_predicted
+
+    stage_info["GT - Predicted"]["Brand"]["GT"] = stage_info["GT - Predicted"]["Brand"]["GT"].upper()
 
     single_item_acc_word_count = 0
     single_item_sim_char_count = 0
@@ -164,7 +172,6 @@ def calc_accuracy(image_path, view, prediction, ground_truth):
                     # print("Revised Prediction: " + item)
                     # print()
 
-                    # TODO: move this to stage 3
                     stage_info["GT - Predicted"]['Diopter']["Predicted"] = item
                     score, similar_chars_count = char_similarity(item, stage_info["GT - Predicted"]['Diopter']["GT"])
                     stage_info["GT - Predicted"]['Diopter']["Character Similarity"] = score
@@ -220,13 +227,17 @@ def calc_accuracy(image_path, view, prediction, ground_truth):
                         next_similar_pred = max(param_similarity_score, 
                                                 key=lambda similar_pred:param_similarity_score[similar_pred]["Score"])
 
-                        autocorrect_words[param] = next_similar_pred
+                        
 
                         stage_info["GT - Predicted"][param]["Predicted"] = param_similarity_score[next_similar_pred]["Original Value"]
                         score, similar_chars_count = char_similarity(
                             stage_info["GT - Predicted"][param]["Predicted"], 
                             stage_info["GT - Predicted"][param]["GT"]
                             )
+
+                        autocorrect_words[param] = {"Next Similar Pred": next_similar_pred, 
+                                                    "No of chars to subtract after autocorrect": similar_chars_count}
+                        
                         # print(score, similar_chars_count)
                         stage_info["GT - Predicted"][param]["Character Similarity"] = score
                         single_item_sim_char_count += similar_chars_count
@@ -238,23 +249,32 @@ def calc_accuracy(image_path, view, prediction, ground_truth):
             print("Stage 3: Autocorrect Functions")
 
             if stage_info["GT - Predicted"]["Diopter"]["GT"] != None and \
-                    stage_info["GT - Predicted"]["Diopter"]["Predicted"] != None:
-                stage_info["GT - Predicted"]["Diopter"]["Predicted"] = processDiopter(stage_info["GT - Predicted"]["Diopter"]["Predicted"])
-                stage_info["GT - Predicted"]["Diopter"]["Character Similarity"] = 100.0
-                single_item_acc_word_count += 1
-                single_item_sim_char_count += len(stage_info["GT - Predicted"]["Diopter"]["GT"])
+                stage_info["GT - Predicted"]["Diopter"]["Predicted"] != None and \
+                stage_info["GT - Predicted"]["Diopter"]["Character Similarity"] != 100.0:
+
+                    stage_info["GT - Predicted"]["Diopter"]["Predicted"] = processDiopter(stage_info["GT - Predicted"]["Diopter"]["Predicted"])
+
+                    # if processDiopter(stage_info["GT - Predicted"]["Diopter"]["Predicted"]) == stage_info["GT - Predicted"]["Diopter"]["GT"]:
+                        # single_item_sim_char_count -= len(stage_info["GT - Predicted"]["Diopter"]["Predicted"])
+                        # stage_info["GT - Predicted"]["Diopter"]["Predicted"] = processDiopter(stage_info["GT - Predicted"]["Diopter"]["Predicted"])
+                        # stage_info["GT - Predicted"]["Diopter"]["Character Similarity"] = 100.0
+                        # single_item_acc_word_count += 1
+                        # single_item_sim_char_count += len(stage_info["GT - Predicted"]["Diopter"]["GT"])
 
             for param in autocorrect_words:
-                stage_info["GT - Predicted"][param]["Predicted"] = autocorrect_words[param]
+                stage_info["GT - Predicted"][param]["Predicted"] = autocorrect_words[param]["Next Similar Pred"]
                 if stage_info["GT - Predicted"][param]["Predicted"] == stage_info["GT - Predicted"][param]["GT"]:
                     stage_info["GT - Predicted"][param]["Character Similarity"] = 100.0
                     single_item_acc_word_count += 1
+                    single_item_sim_char_count -= autocorrect_words[param]["No of chars to subtract after autocorrect"]
                     single_item_sim_char_count += len(stage_info["GT - Predicted"][param]["GT"])
                 else:
                     sim_score, sim_chars_count = char_similarity(stage_info["GT - Predicted"][param]["Predicted"], stage_info["GT - Predicted"][param]["GT"])
                     stage_info["GT - Predicted"][param]["Character Similarity"] = sim_score
+                    single_item_sim_char_count -= autocorrect_words[param]["No of chars to subtract after autocorrect"]
                     single_item_sim_char_count += sim_chars_count
 
+        
         stage_info["Number of Accurate Words"] = single_item_acc_word_count
         stage_info["Number of Accurate Characters"] = single_item_sim_char_count
         word_accuracy = round(stage_info["Number of Accurate Words"]/stage_info["Number of Words"], SIG_FIG)
@@ -263,6 +283,19 @@ def calc_accuracy(image_path, view, prediction, ground_truth):
         stage_info["Character Accuracy"] = char_accuracy
 
         pred_info["Stages"][stage_no] = copy.deepcopy(stage_info)
+
+        content = {
+            "Image Path": image_path, 
+            "Stage": str(stage_no),
+            "Number of Words": stage_info["Number of Words"], 
+            "Number of Accurate Words": stage_info["Number of Accurate Words"], 
+            "Word Accuracy": stage_info["Word Accuracy"],
+            "Number of Characters": stage_info["Number of Characters"], 
+            "Number of Accurate Characters": stage_info["Number of Accurate Characters"], 
+            "Character Accuracy": stage_info["Character Accuracy"]
+        }
+        csv_utils.write_to_csv(EVAL_CSV_FILEPATH, content)
+
         print("----------------------")
     # TODO: Verify if the counts are correct
     
@@ -355,6 +388,7 @@ def main():
 
                             print("=============== Evaluating: {} ===============".format(image_path))
                             pred_info = calc_accuracy(image_path, view, combined_predictions, ground_truth)
+
                             for stage_no in pred_info["Stages"]:
 
                                 dp_total_acc_word_count = pred_info["Stages"][stage_no]["Number of Accurate Words"]
@@ -396,26 +430,21 @@ def test_one():
 
 def test_all():
 
-    image_path = "/mnt/c/Users/user/OneDrive - Singapore University of Technology and Design/Term 7/01.116/1D Project/01.116_IHIS_Project/Data/good/Sensar/AAB00/back/IMG20210303114011.jpg"
+    image_path = "/mnt/c/Users/user/OneDrive - Singapore University of Technology and Design/Term 7/01.116/1D Project/01.116_IHIS_Project/Data/good/Tecnis/ZCT300/back/IMG_1648.png"
     preprocess_types = [args["preprocess"]] if args["preprocess"] != "all" else ["thresh", "blur"]
-    # print(preprocess_types)
     combined_predictions = ''
     for preprocess_type in preprocess_types:
-        # print(preprocess_type)
         image = cv2.imread(image_path)
 
         preprocessed_image = preprocess(image, preprocess_type)
         prediction = pytesseract.image_to_string(Image.fromarray(preprocessed_image))
-        # print(prediction.split())
         combined_predictions += prediction
 
-    for i in (combined_predictions.split()):
-        print(i)
     pred_info = calc_accuracy(
                     image_path, 
                     "back", 
                     combined_predictions,
-                    csv_utils.extract_ground_truth("Sensar", "AAB00", "back")
+                    csv_utils.extract_ground_truth("Tecnis", "ZCT300", "back")
                     )
 # main()
 
