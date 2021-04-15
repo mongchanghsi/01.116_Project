@@ -1,4 +1,4 @@
-import csv_utils
+# import csv_utils
 acrysof_models = ['TFNT00', 'TFNT20-T60', 'SN6AT2-T9', 'AU00T0', 'SA60WF', 'SA6AT2-T9', 'MA60MA']
 
 tecnis_3_pc_models = ['ZA9003']
@@ -29,7 +29,7 @@ sensar_collated_model = []
 sensar_collated_model.extend(sensar_1_models)
 sensar_collated_model.extend(sensar_models)
 
-BRANDS = csv_utils.get_brands()
+# BRANDS = csv_utils.get_brands()
 
 def isModel(x, b):
   if b == 'TECNIS':
@@ -44,6 +44,7 @@ def isModel(x, b):
   return False
 
 def modelSimilarity(x,b):
+  b = b.upper()
   similarityScore = {}
   if b == 'TECNIS':
     for b2 in tecnis_collated_model:
@@ -82,5 +83,5 @@ def similarityFunction(word1, word2):
       count += 1
     i += 1
     j += 1
-  score = (count / len(word1)) * 100
+  score = (count / len(word2)) * 100
   return word2, score

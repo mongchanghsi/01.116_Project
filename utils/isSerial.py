@@ -19,7 +19,7 @@ def isSerial(x, b):
   
   if b == '':
     return False
-  print(x)
+
   return True
 
 def isSerial_2(x1, x2, b):
