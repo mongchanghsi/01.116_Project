@@ -1,11 +1,6 @@
 # TODO: Include uppercase and lowercase variants too
 brand_GT = ['TECNIS', 'Sensar', 'AcrySof']
-brands = ['TECNIS', 'SENSAR', 'ACRYSOF']
-# import csv_utils
-
-# brands = ['TECNIS', 'SENSAR', 'ACRYSOF']
-# BRANDS = csv_utils.get_brands()
-
+brands = ['TECNIS', 'SENSAR', 'ACRYSOF', 'ALCON']
 # need to implement similarity score
 def isBrand(x):
   x = x.upper()
@@ -23,8 +18,10 @@ def brandSimilarity(x):
   if similarityScore != {}:
     most_similar_brand = (max(similarityScore, key=similarityScore.get))
     highest_score = max(similarityScore.values())
-    return most_similar_brand, highest_score
-
+    if highest_score > 36.0:
+      return most_similar_brand, highest_score
+  return '', 0
+    
 def similarityFunction(word1, word2):
   # word1 is the OCR
   # word2 is the 'ground-truth' word

@@ -2,13 +2,12 @@ import csv
 import os
 import sys
 
-CSV_FILE_PATH = "/mnt/c/Users/user/OneDrive - Singapore University of Technology and Design/Term 7/01.116/1D Project/01.116_IHIS_Project/Data/Combined_2/Sample_Images_Data_Dictionary_05032021.csv"
 VIEWS = {"back": "Back View Details", "side": "Side View Details"}
 PARAMS = ["Brand", "Model", "Diopter", "Serial Number", "Batch Number", "Expiry Date"]
 
-def get_fields_rows():
+def get_fields_rows(csv_file_path):
     field_to_col_idx = {}
-    with open(CSV_FILE_PATH, 'r', encoding='utf-8-sig') as csv_file:
+    with open(csv_file_path, 'r', encoding='utf-8-sig') as csv_file:
         reader = csv.reader(csv_file)
         fields = next(reader) # Reads header row as a list
         rows = list(reader)   # Reads all subsequent rows as a list of lists
@@ -18,22 +17,10 @@ def get_fields_rows():
             field_to_col_idx[field] = column_number
         return field_to_col_idx, rows
 
-def get_brands():
-    col_name = "Brand Directory Name"
-    field_to_col_idx, rows = get_fields_rows()
-    col_vals = []
-
-    for row in rows:
-        col_val = row[field_to_col_idx[col_name]]
-        if col_val not in col_vals:
-            col_vals.append(row[field_to_col_idx[col_name]])
-
-    return col_vals
-
-def extract_ground_truth(brand, model, view):
+def extract_ground_truth(csv_file_path, brand, model, view):
     ground_truth = {}
     view_col_name = VIEWS[view]
-    field_to_col_idx, rows= get_fields_rows()
+    field_to_col_idx, rows= get_fields_rows(csv_file_path)
     
     # print(field_to_col_idx)
     for row in rows:
@@ -68,10 +55,15 @@ def write_to_csv(csvFileName: str, content: dict):
         writer = csv.DictWriter(csv_file, fieldnames=list(content.keys()))
         writer.writerow(content)
 
-# EVAL_CSV_FILEPATH = "logs/good_all.csv"
-
-# csv_field_names = ["Image Path", "Stage", "Number of Words", "Number of Accurate Words", "Word Accuracy",
-#                     "Number of Characters", "Number of Accurate Characters", "Character Accuracy"]
-
-# if not os.path.exists(EVAL_CSV_FILEPATH):
-#     initialize(EVAL_CSV_FILEPATH, csv_field_names)
+def stage_result(image_path, stage_no, stage_info):
+    content = {
+        "Image Path": image_path, 
+        "Stage": str(stage_no),
+        "Number of Words": stage_info["Number of Words"], 
+        "Number of Accurate Words": stage_info["Number of Accurate Words"], 
+        "Word Accuracy": stage_info["Word Accuracy"],
+        "Number of Characters": stage_info["Number of Characters"], 
+        "Number of Accurate Characters": stage_info["Number of Accurate Characters"], 
+        "Character Accuracy": stage_info["Character Accuracy"]
+    }
+    return content
