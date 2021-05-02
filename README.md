@@ -34,6 +34,7 @@
 4. run `python3 main.py -i1 test_images/<IMAGE NAME INCLUDING EXT> -i2 test_images/<IMAGE NAME INCLUDING EXT>` for 2 images (for e.g. `python3 main2.py -i1 test_images/test2_back_cropped.png -i2 test_images/test2_top_cropped.png`)
 
 ### Evaluate
+* Run 
 * Run `python3 evaluate.py -d <path-to-dataset-director>` 
     * E.g. `python3 evaluate.py -d  /home/hwlee96/SUTD/01.116/project/Data`
 #### Note
@@ -41,3 +42,4 @@
 In the directory folder, I have 2 sub-folders; test_images and processed_images.
 The test_images are the cropped and rotated images that you want to run OCR on.
 The processed_images are the images that will be processed by the script and save it in there.
+

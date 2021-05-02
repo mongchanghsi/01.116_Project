@@ -30,7 +30,7 @@ def get_brands():
 
     return col_vals
 
-def extract_ground_truth(brand, model, view):
+def extract_ground_truth(csv_file_path, brand, model, view):
     ground_truth = {}
     view_col_name = VIEWS[view]
     field_to_col_idx, rows= get_fields_rows()
@@ -67,6 +67,19 @@ def write_to_csv(csvFileName: str, content: dict):
     with open(csvFileName, mode="a",  newline='') as csv_file:
         writer = csv.DictWriter(csv_file, fieldnames=list(content.keys()))
         writer.writerow(content)
+
+def stage_result(image_path, stage_no, stage_info):
+    content = {
+        "Image Path": image_path, 
+        "Stage": str(stage_no),
+        "Number of Words": stage_info["Number of Words"], 
+        "Number of Accurate Words": stage_info["Number of Accurate Words"], 
+        "Word Accuracy": stage_info["Word Accuracy"],
+        "Number of Characters": stage_info["Number of Characters"], 
+        "Number of Accurate Characters": stage_info["Number of Accurate Characters"], 
+        "Character Accuracy": stage_info["Character Accuracy"]
+    }
+    return content
 
 # EVAL_CSV_FILEPATH = "logs/good_all.csv"
 
