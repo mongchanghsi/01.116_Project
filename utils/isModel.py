@@ -1,5 +1,4 @@
-import csv_utils
-acrysof_models = ['TFNT00', 'TFNT20-T60', 'SN6AT2-T9', 'AU00T0', 'SA60WF', 'SA6AT2-T9', 'MA60MA']
+acrysof_models = ['TFNT00', 'TFNT20-T60', 'SN6AT2-T9', 'AU00T0', 'SA60WF', 'SA6AT2-T9', 'MA60MA', 'MTA4U0']
 
 tecnis_3_pc_models = ['ZA9003']
 tecnis_1_models = ['ZCB00']
@@ -29,7 +28,11 @@ sensar_collated_model = []
 sensar_collated_model.extend(sensar_1_models)
 sensar_collated_model.extend(sensar_models)
 
-BRANDS = csv_utils.get_brands()
+all_collated_models_dict = {'TECNIS': tecnis_collated_model, 'SENSAR': sensar_collated_model, 'ACRYSOF': acrysof_models}
+all_collated_models_list = []
+all_collated_models_list.extend(tecnis_collated_model)
+all_collated_models_list.extend(sensar_collated_model)
+all_collated_models_list.extend(acrysof_models)
 
 def isModel(x, b):
   if b == 'TECNIS':
@@ -38,12 +41,13 @@ def isModel(x, b):
   elif b == 'SENSAR':
     if x in sensar_collated_model:
       return True
-  elif b == 'ALCON':
-    if x in alcon_models:
+  elif b == 'ACRYSOF':
+    if x in acrysof_models:
       return True
   return False
 
 def modelSimilarity(x,b):
+  b = b.upper()
   similarityScore = {}
   if b == 'TECNIS':
     for b2 in tecnis_collated_model:
@@ -62,13 +66,25 @@ def modelSimilarity(x,b):
         else:
           if similarityScore[word] < score:
             similarityScore[word] = score
+  elif b == 'ACRYSOF':
+    for b2 in acrysof_models:
+      if b2 in x:
+        return b2, 100
+      word, score = similarityFunction(x, b2)
+      if word not in similarityScore.keys():
+        similarityScore[word] = score
+      else:
+        if similarityScore[word] < score:
+          similarityScore[word] = score
+
   # print(f'The word is {x}, the Similarity Score is {similarityScore}')
   if similarityScore != {}:
     most_similar_model= (max(similarityScore, key=similarityScore.get))
     highest_score = max(similarityScore.values())
-    return most_similar_model, highest_score
+    if highest_score > 36.0:
+      return most_similar_model, highest_score
 
-  # if there is no similarity at all, return blank modeland 0 score
+  # if there is no similarity at all, return blank model and 0 score
   return '', 0
 
 def similarityFunction(word1, word2):
@@ -84,3 +100,10 @@ def similarityFunction(word1, word2):
     j += 1
   score = (count / len(word1)) * 100
   return word2, score
+
+def modelFindBrand(x):
+  # Level 1 - if char by char is exactly the same
+  for brand in all_collated_models_dict.keys():
+    if x in all_collated_models_dict[brand]:
+      return brand, x 
+  return '', ''
