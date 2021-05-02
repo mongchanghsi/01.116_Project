@@ -1,4 +1,3 @@
-# Tutorial from https://www.tensorscience.com/ocr/optical-character-recognition-ocr-with-python-and-tesseract-4-an-introduction
 import os
 from PIL import Image
 import pytesseract
@@ -60,24 +59,6 @@ filename1 = "./processed_images/{}_GB_1.png".format(os.getpid())
 filename2 = "./processed_images/{}_GB_2.png".format(os.getpid())
 filename3 = "./processed_images/{}_GBT_1.png".format(os.getpid())
 filename4 = "./processed_images/{}_GBT_2.png".format(os.getpid())
-
-# # Script to convert to 300DPI
-# gray_GB_1 = cv2.cvtColor(gray_GB_1, cv2.COLOR_BGR2RGB)
-# gray_GB_1 = Image.fromarray(gray_GB_1)
-
-# gray_GB_2 = cv2.cvtColor(gray_GB_2, cv2.COLOR_BGR2RGB)
-# gray_GB_2 = Image.fromarray(gray_GB_2)
-
-# gray_GBT_1 = cv2.cvtColor(gray_GBT_1, cv2.COLOR_BGR2RGB)
-# gray_GBT_1 = Image.fromarray(gray_GBT_1)
-
-# gray_GBT_2 = cv2.cvtColor(gray_GBT_2, cv2.COLOR_BGR2RGB)
-# gray_GBT_2 = Image.fromarray(gray_GBT_2)
-
-# gray_GB_1.save(filename1, dpi=(300,300))
-# gray_GB_2.save(filename2, dpi=(300,300))
-# gray_GBT_1.save(filename3, dpi=(300,300))
-# gray_GBT_2.save(filename4, dpi=(300,300))
 
 cv2.imwrite(filename1, gray_GB_1)
 cv2.imwrite(filename2, gray_GB_2)
@@ -152,7 +133,7 @@ def dataExtraction(metadata, info):
     if metadata['model'] == '':
       similarity_model_score = {}
       for i in info:
-        if i.isalnum() and i.isalpha() == False and i.isdigit() == False and len(i) > 4 and len(i) < 12:
+        if i.isalnum() and len(i) > 4 and len(i) < 12:
           most_similar_model, score = modelSimilarity(i, metadata['brand'])
           if score > 0:
             if most_similar_model in similarity_model_score.keys():
@@ -185,10 +166,6 @@ def dataExtraction(metadata, info):
         batch_name = (max(similarity_batch_score, key=similarity_batch_score.get))
         autocorrect_batch_name = metadata['model'] + batch_name[len(metadata['model']):]
         metadata['batch'] = autocorrect_batch_name
-        # if (checkSerialSize(autocorrect_batch_name, metadata['brand']) == False):
-        #   metadata['batch'] = autocorrect_batch_name + '0'
-        # else:
-        #   metadata['batch'] = autocorrect_batch_name
 
   # If serial number is still not detected, perform a secondary check if the serial number has been broken up into two
   if metadata['serialnumber'] == '':
@@ -228,8 +205,6 @@ def combineData(metadata_GB, metadata_GBT):
           metadata_final[i] = metadata_GBT[i]
       elif i == 'serialnumber':
         metadata_final[i] = metadata_GB[i]
-      elif i == 'expirydate':
-        pass
   return metadata_final
 
 # Combine 
