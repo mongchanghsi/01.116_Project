@@ -32,8 +32,9 @@ args = vars(ap.parse_args())
 DATASET_PATH =  args["dataset_dir"]
 SIG_FIG = 3
 
-EVAL_LOG_FILEPATH = "logs/{}_{}.json".format(args["dataset_dir"], args["preprocess"])
-EVAL_CSV_FILEPATH = "logs/{}_{}.csv".format(args["dataset_dir"], args["preprocess"])
+CSV_FILE_PATH = args["dataset_dir"] + "/Sample_Images_Data_Dictionary_05032021.csv"
+EVAL_LOG_FILEPATH = "logs/{}.json".format(args["preprocess"])
+EVAL_CSV_FILEPATH = "logs/{}.csv".format(args["preprocess"])
 
 csv_field_names = ["Image Path", "Stage", "Number of Words", "Number of Accurate Words", "Word Accuracy",
                     "Number of Characters", "Number of Accurate Characters", "Character Accuracy"]
@@ -285,49 +286,4 @@ def main():
     print("Check CSV entries against empty ground truths extracted:")
     print(empty_gt for empty_gt in empty_gts)
 
-
-def test_one():
-    brand = "Tecnis"
-    view = "back"
-    model = "ZXR00"
-    image_path = "/mnt/c/Users/user/OneDrive - Singapore University of Technology and Design/Term 7/01.116/1D Project/01.116_IHIS_Project/Data/good/Tecnis/ZXR00/back/3.jpeg"
-    preprocess_types = [args["preprocess"]] if args["preprocess"] != "all" else ["thresh", "blur"]
-    combined_predictions = ''
-    for preprocess_type in preprocess_types:
-        image = cv2.imread(image_path)
-        preprocessed_image = preprocess(image, preprocess_type)
-        prediction = pytesseract.image_to_string(Image.fromarray(preprocessed_image))
-        combined_predictions += prediction
-
-    ground_truth = csv_utils.extract_ground_truth(CSV_FILE_PATH, brand, model, view)
-    
-    pred_info = calc_accuracy(
-                    image_path, 
-                    view, 
-                   combined_predictions,
-                    ground_truth
-                    )
-
-    return pred_info
-
-def test_all():
-
-    image_path = "/mnt/c/Users/user/OneDrive - Singapore University of Technology and Design/Term 7/01.116/1D Project/01.116_IHIS_Project/Data/good/Tecnis/ZCT300/back/IMG_1648.png"
-    preprocess_types = [args["preprocess"]] if args["preprocess"] != "all" else ["thresh", "blur"]
-    combined_predictions = ''
-    for preprocess_type in preprocess_types:
-        image = cv2.imread(image_path)
-
-        preprocessed_image = preprocess(image, preprocess_type)
-        prediction = pytesseract.image_to_string(Image.fromarray(preprocessed_image))
-        combined_predictions += prediction
-
-    pred_info = calc_accuracy(
-                    image_path, 
-                    "back", 
-                    combined_predictions,
-                    csv_utils.extract_ground_truth(CSV_FILE_PATH, "Tecnis", "ZCT300", "back")
-                    )
 main()
-
-# test_one()
